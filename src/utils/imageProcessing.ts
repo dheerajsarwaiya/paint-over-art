@@ -78,8 +78,8 @@ export const posterizeImage = (
       // imageData.data.set(blurredData);
       const data = imageData.data;
       const uniqueColors: RGB[] = [];
-      const colorFrequency = new Map<string, number>();
 
+      // First pass: Posterize the image
       for (let i = 0; i < data.length; i += 4) {
         const r = data[i];
         const g = data[i + 1];
@@ -107,15 +107,27 @@ export const posterizeImage = (
           matchedColor = quantized;
         }
 
-        const colorKey = colorToString(matchedColor);
-        colorFrequency.set(colorKey, (colorFrequency.get(colorKey) || 0) + 1);
-
         data[i] = matchedColor.r;
         data[i + 1] = matchedColor.g;
         data[i + 2] = matchedColor.b;
       }
 
       ctx.putImageData(imageData, 0, 0);
+
+      // Second pass: Extract ALL colors from the final posterized image
+      const colorFrequency = new Map<string, number>();
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        const a = data[i + 3];
+
+        if (a === 0) continue;
+
+        const color: RGB = { r, g, b };
+        const colorKey = colorToString(color);
+        colorFrequency.set(colorKey, (colorFrequency.get(colorKey) || 0) + 1);
+      }
 
       const sortedColors = Array.from(colorFrequency.entries())
         .sort((a, b) => b[1] - a[1])
