@@ -250,10 +250,10 @@ function App() {
         </div>
       </header>
 
-      <main className="max-w-[1800px] mx-auto px-6 py-6">
+      <main className="max-w-[1800px] mx-auto px-3 sm:px-6 py-4 sm:py-6">
         {/* Top bar with brush and canvas controls */}
-        <div className="flex flex-wrap gap-4 mb-6">
-          <div className="min-w-0 ">
+        <div className="flex flex-col gap-3 mb-4 sm:flex-row sm:flex-wrap sm:gap-4 sm:mb-6">
+          <div className="w-full overflow-x-auto sm:w-auto">
             <BrushControls
               brushSize={brushSize}
               onBrushSizeChange={setBrushSize}
@@ -263,7 +263,7 @@ function App() {
               onToolChange={setToolType}
             />
           </div>
-          <div className="min-w-0 ">
+          <div className="w-full overflow-x-auto sm:w-auto">
             <CanvasControls
               scale={scale}
               onZoomIn={handleZoomIn}
@@ -277,7 +277,7 @@ function App() {
               // onOpacityChange={setImageOpacity}
             />
           </div>
-          <div className="min-w-0 ">
+          <div className="w-full overflow-x-auto sm:w-auto">
             <HistoryControls
               canUndo={historyStep > 0}
               canRedo={historyStep < history.length - 1}
@@ -292,34 +292,12 @@ function App() {
           </div>
         </div>
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
-          <div className="space-y-4 lg:col-span-1">
-            {imageDataUrl && (
-              <div className="p-4 bg-white rounded-lg shadow-sm">
-                {/* <h3 className="mb-2 text-sm font-medium text-gray-700">
-                  Original Image
-                </h3> */}
-                <ColorHighlightOverlay
-                  imageDataUrl={imageDataUrl}
-                  brushColor={brushColor}
-                  isEnabled={isColorHighlightEnabled}
-                  onToggle={() =>
-                    setIsColorHighlightEnabled(!isColorHighlightEnabled)
-                  }
-                />
-              </div>
-            )}
-            <ColorPalette
-              selectedColor={brushColor}
-              onColorChange={setBrushColor}
-              dominantColors={dominantColors}
-            />
-          </div>
-
-          <div className="space-y-4 lg:col-span-3">
+          {/* Canvas area - shows first on mobile, second on desktop */}
+          <div className="order-1 space-y-4 lg:order-2 lg:col-span-3">
             {/* Canvas area */}
             <div
-              className="p-6 bg-white rounded-lg shadow-lg"
-              style={{ height: "calc(100vh - 260px)" }}
+              className="p-3 bg-white rounded-lg shadow-lg sm:p-6"
+              style={{ height: "calc(100vh - 260px)", minHeight: "400px" }}
             >
               <PaintCanvas
                 ref={paintCanvasRef}
@@ -343,6 +321,30 @@ function App() {
                 loadedPaintLayer={loadedPaintLayer}
               />
             </div>
+          </div>
+
+          {/* Sidebar - shows second on mobile, first on desktop */}
+          <div className="order-2 space-y-4 lg:order-1 lg:col-span-1">
+            {imageDataUrl && (
+              <div className="p-4 bg-white rounded-lg shadow-sm">
+                {/* <h3 className="mb-2 text-sm font-medium text-gray-700">
+                  Original Image
+                </h3> */}
+                <ColorHighlightOverlay
+                  imageDataUrl={imageDataUrl}
+                  brushColor={brushColor}
+                  isEnabled={isColorHighlightEnabled}
+                  onToggle={() =>
+                    setIsColorHighlightEnabled(!isColorHighlightEnabled)
+                  }
+                />
+              </div>
+            )}
+            <ColorPalette
+              selectedColor={brushColor}
+              onColorChange={setBrushColor}
+              dominantColors={dominantColors}
+            />
           </div>
         </div>
       </main>

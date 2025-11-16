@@ -22,52 +22,49 @@ export default function BrushControls({
   onToolChange,
 }: BrushControlsProps) {
   return (
-    <div className="flex items-center gap-6 ">
+    <div className="flex flex-wrap items-center gap-3 sm:gap-4">
       {/* Tool Selection Buttons */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5 sm:gap-2">
         <button
           onClick={() => onToolChange("brush")}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-md transition-colors ${
+          className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-md transition-colors ${
             toolType === "brush"
               ? "bg-blue-100 text-blue-700 border border-blue-200"
               : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200"
           }`}
         >
           <Brush size={16} />
-          <span className="text-sm font-medium">Brush</span>
+          <span className="hidden text-xs font-medium sm:text-sm xs:inline">Brush</span>
         </button>
 
         <button
           onClick={() => onToolChange("spray")}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-md transition-colors ${
+          className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-md transition-colors ${
             toolType === "spray"
               ? "bg-blue-100 text-blue-700 border border-blue-200"
               : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200"
           }`}
         >
           <SprayCan size={16} />
-          <span className="text-sm font-medium">Spray</span>
+          <span className="hidden text-xs font-medium sm:text-sm xs:inline">Spray</span>
         </button>
 
         <button
           onClick={() => onToolChange("eraser")}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-md transition-colors ${
+          className={`flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-md transition-colors ${
             toolType === "eraser"
               ? "bg-blue-100 text-blue-700 border border-blue-200"
               : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200"
           }`}
         >
           <Eraser size={16} />
-          <span className="text-sm font-medium">Eraser</span>
+          <span className="hidden text-xs font-medium sm:text-sm xs:inline">Eraser</span>
         </button>
       </div>
 
-      {/* Separator */}
-      {/* <div className="w-px h-6 bg-gray-300"></div> */}
-
       {/* Brush Size Control */}
-      <div className="flex items-center gap-3">
-        <label className="text-sm font-medium text-gray-700 min-w-fit">
+      <div className="flex items-center gap-2">
+        <label className="text-xs font-medium text-gray-700 sm:text-sm min-w-fit">
           {brushSize}px
         </label>
         <input
@@ -76,19 +73,19 @@ export default function BrushControls({
           max="50"
           value={brushSize}
           onChange={(e) => onBrushSizeChange(Number(e.target.value))}
-          className="w-32 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+          className="w-20 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer sm:w-28 md:w-32 slider"
         />
       </div>
 
       {/* Brush Opacity Control */}
-      <div className="flex items-center gap-3">
-        <label className="text-sm font-medium text-gray-700 min-w-fit">
+      <div className="flex items-center gap-2">
+        <label className="hidden text-xs font-medium text-gray-700 sm:text-sm min-w-fit sm:inline">
           Opacity
         </label>
         <select
           value={brushOpacity}
           onChange={(e) => onBrushOpacityChange(Number(e.target.value))}
-          className="px-2 py-1 text-sm text-gray-700 bg-white border border-gray-200 rounded-md hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="px-1.5 sm:px-2 py-1 text-xs sm:text-sm text-gray-700 bg-white border border-gray-200 rounded-md hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           <option value={1}>100%</option>
           <option value={0.9}>90%</option>
@@ -102,23 +99,6 @@ export default function BrushControls({
           <option value={0.1}>10%</option>
         </select>
       </div>
-
-      {/* Quick Size Buttons */}
-      {/* <div className="flex items-center gap-1">
-        {BRUSH_SIZES.slice(0, 4).map((size) => (
-          <button
-            key={size}
-            onClick={() => onBrushSizeChange(size)}
-            className={`px-2 py-1 text-xs rounded border transition-colors ${
-              brushSize === size
-                ? "bg-blue-100 text-blue-700 border-blue-200"
-                : "bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100"
-            }`}
-          >
-            {size}
-          </button>
-        ))}
-      </div> */}
     </div>
   );
 }
