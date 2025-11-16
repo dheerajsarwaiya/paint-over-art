@@ -11,16 +11,31 @@ interface ImageUploaderProps {
     sketchUrl: string,
     dominantColors?: string[]
   ) => void;
+  onProjectLoad?: (projectFile: File) => void;
 }
 
-export default function ImageUploader({ onImageUpload }: ImageUploaderProps) {
+export default function ImageUploader({
+  onImageUpload,
+  onProjectLoad,
+}: ImageUploaderProps) {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
-    if (file && file.type.startsWith("image/")) {
+    if (!file) return;
+
+    // Check if it's a .paintoverart file
+    if (file.name.endsWith(".paintoverart")) {
+      if (onProjectLoad) {
+        onProjectLoad(file);
+      }
+      return;
+    }
+
+    // Handle regular image files
+    if (file.type.startsWith("image/")) {
       const reader = new FileReader();
       reader.onload = async (e) => {
         const result = e.target?.result as string;
@@ -72,7 +87,7 @@ export default function ImageUploader({ onImageUpload }: ImageUploaderProps) {
         </span>
         <input
           type="file"
-          accept="image/*"
+          accept="image/*,.paintoverart"
           onChange={handleFileChange}
           disabled={isProcessing}
           className="hidden"

@@ -1,6 +1,7 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Palette } from "lucide-react";
 import ImageUploader from "./components/ImageUploader";
+import { saveProject, loadProject } from "./utils/projectSave";
 import PaintCanvas from "./components/PaintCanvas";
 import ColorPalette from "./components/ColorPalette";
 import BrushControls from "./components/BrushControls";
@@ -29,6 +30,10 @@ function App() {
   const [triggerUndo, setTriggerUndo] = useState(0);
   const [triggerRedo, setTriggerRedo] = useState(0);
   const [isColorHighlightEnabled, setIsColorHighlightEnabled] = useState(false);
+  const [loadedPaintLayer, setLoadedPaintLayer] = useState<string | null>(null);
+  const paintCanvasRef = useRef<{
+    getCurrentImageData: () => ImageData | null;
+  }>(null);
 
   const handleImageUpload = (
     dataUrl: string,
@@ -44,6 +49,7 @@ function App() {
     setHistory([]);
     setHistoryStep(-1);
     setIsColorHighlightEnabled(false);
+    setLoadedPaintLayer(null); // Reset loaded paint layer for new uploads
   };
 
   const handleZoomIn = () => {
@@ -100,6 +106,92 @@ function App() {
 
   const handleUndoRedoComplete = () => {};
 
+  const handleSaveProgress = async (): Promise<void> => {
+    try {
+      const currentImageData = paintCanvasRef.current?.getCurrentImageData();
+
+      if (!currentImageData || !imageDataUrl || !sketchImageDataUrl) {
+        alert(
+          "No project data to save. Please upload an image and start painting first."
+        );
+        return;
+      }
+
+      const result = await saveProject(
+        imageDataUrl,
+        sketchImageDataUrl,
+        dominantColors,
+        currentImageData,
+        {
+          brushSize,
+          brushColor,
+          brushOpacity,
+          scale,
+          offsetX,
+          offsetY,
+          isEraser,
+          isPanMode,
+          isColorHighlightEnabled,
+        }
+      );
+
+      if (result.success) {
+        alert(`Progress saved successfully as ${result.filename}`);
+      } else {
+        alert(`Failed to save progress: ${result.error}`);
+      }
+    } catch (error) {
+      console.error("Save error:", error);
+      alert("An unexpected error occurred while saving.");
+    }
+  };
+
+  const handleLoadProgress = async (file: File): Promise<void> => {
+    try {
+      const result = await loadProject(file);
+
+      if (!result.success || !result.data) {
+        alert(`Failed to load project: ${result.error}`);
+        return;
+      }
+
+      const { data } = result;
+
+      // Restore project images and settings
+      setImageDataUrl(data.project.originalImage);
+      setSketchImageDataUrl(data.project.sketchImage);
+      setDominantColors(data.project.dominantColors);
+
+      // Restore UI settings
+      setBrushSize(data.settings.brushSize);
+      setBrushColor(data.settings.brushColor);
+      setBrushOpacity(data.settings.brushOpacity);
+      setScale(data.settings.scale);
+      setOffsetX(data.settings.offsetX);
+      setOffsetY(data.settings.offsetY);
+      setIsEraser(data.settings.isEraser);
+      setIsPanMode(data.settings.isPanMode);
+      setIsColorHighlightEnabled(data.settings.isColorHighlightEnabled);
+
+      // Clear history for fresh start
+      setHistory([]);
+      setHistoryStep(-1);
+
+      // Set the loaded paint layer - PaintCanvas will restore it
+      setLoadedPaintLayer(data.canvas.paintLayer);
+      
+      // Reset after a short delay to allow PaintCanvas to process it
+      setTimeout(() => {
+        setLoadedPaintLayer(null);
+      }, 100);
+
+      alert("Project loaded successfully!");
+    } catch (error) {
+      console.error("Load error:", error);
+      alert("An unexpected error occurred while loading the project.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <header className="bg-white border-b border-gray-200 shadow-sm">
@@ -118,7 +210,10 @@ function App() {
                 </p>
               </div>
             </div>
-            <ImageUploader onImageUpload={handleImageUpload} />
+            <ImageUploader
+              onImageUpload={handleImageUpload}
+              onProjectLoad={handleLoadProgress}
+            />
           </div>
         </div>
       </header>
@@ -157,6 +252,9 @@ function App() {
               onUndo={handleUndo}
               onRedo={handleRedo}
               onClear={handleClear}
+              onSave={handleSaveProgress}
+              onLoad={handleLoadProgress}
+              canSave={!!imageDataUrl && !!sketchImageDataUrl}
             />
           </div>
         </div>
@@ -191,6 +289,7 @@ function App() {
               style={{ height: "calc(100vh - 260px)" }}
             >
               <PaintCanvas
+                ref={paintCanvasRef}
                 sketchImageDataUrl={sketchImageDataUrl}
                 brushSize={brushSize}
                 brushColor={brushColor}
@@ -208,6 +307,7 @@ function App() {
                 onUndoRedoComplete={handleUndoRedoComplete}
                 undoHistory={history}
                 historyStep={historyStep}
+                loadedPaintLayer={loadedPaintLayer}
               />
             </div>
           </div>

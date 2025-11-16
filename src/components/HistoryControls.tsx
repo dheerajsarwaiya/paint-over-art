@@ -1,4 +1,5 @@
 import { Undo2, Redo2, RotateCcw } from "lucide-react";
+import SaveProgressControls from "./SaveProgressControls";
 
 interface HistoryControlsProps {
   canUndo: boolean;
@@ -6,6 +7,9 @@ interface HistoryControlsProps {
   onUndo: () => void;
   onRedo: () => void;
   onClear: () => void;
+  onSave: () => Promise<void>;
+  onLoad: (file: File) => Promise<void>;
+  canSave: boolean;
 }
 
 export default function HistoryControls({
@@ -14,11 +18,13 @@ export default function HistoryControls({
   onUndo,
   onRedo,
   onClear,
+  onSave,
+  onLoad,
+  canSave,
 }: HistoryControlsProps) {
   return (
-    <div>
-      {/* <h3 className="mb-3 text-sm font-semibold text-gray-700">History</h3> */}
-
+    <div className="flex flex-col gap-3">
+      {/* History Controls */}
       <div className="flex gap-2">
         <button
           onClick={onUndo}
@@ -30,7 +36,6 @@ export default function HistoryControls({
           }`}
         >
           <Undo2 size={16} />
-          {/* <span className="text-sm font-medium">Undo</span> */}
         </button>
 
         <button
@@ -43,7 +48,6 @@ export default function HistoryControls({
           }`}
         >
           <Redo2 size={16} />
-          {/* <span className="text-sm font-medium">Redo</span> */}
         </button>
 
         <button
@@ -51,9 +55,16 @@ export default function HistoryControls({
           className="flex items-center justify-center gap-2 px-3 py-2 text-white transition-colors bg-red-600 rounded-lg hover:bg-red-700"
         >
           <RotateCcw size={16} />
-          {/* <span className="text-sm font-medium">Clear</span> */}
         </button>
       </div>
+
+      {/* Save/Load Controls */}
+      <SaveProgressControls
+        onSave={onSave}
+        onLoad={onLoad}
+        disableSave={!canSave}
+        disableLoad={false}
+      />
     </div>
   );
 }

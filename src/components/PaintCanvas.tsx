@@ -1,10 +1,12 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, forwardRef, useImperativeHandle } from "react";
 import { Point } from "../types/canvas";
 import {
   // getCursorPosition,
   drawLine,
   loadImageToCanvas,
 } from "../utils/canvasHelpers";
+import { getCanvasImageData } from "../utils/canvasSerializer";
+import { base64ToImageData } from "../utils/canvasSerializer";
 
 interface PaintCanvasProps {
   sketchImageDataUrl: string | null;
@@ -24,27 +26,34 @@ interface PaintCanvasProps {
   onUndoRedoComplete: () => void;
   undoHistory: ImageData[];
   historyStep: number;
+  loadedPaintLayer?: string | null; // Base64 encoded paint layer to restore
 }
 
-export default function PaintCanvas({
-  sketchImageDataUrl,
-  brushSize,
-  brushColor,
-  brushOpacity,
-  isEraser,
-  isPanMode,
-  scale,
-  offsetX,
-  offsetY,
-  onPan,
-  // imageOpacity,
-  onHistoryUpdate,
-  triggerUndo,
-  triggerRedo,
-  onUndoRedoComplete,
-  undoHistory,
-  historyStep,
-}: PaintCanvasProps) {
+export interface PaintCanvasRef {
+  getCurrentImageData: () => ImageData | null;
+}
+
+const PaintCanvas = forwardRef<PaintCanvasRef, PaintCanvasProps>((props, ref) => {
+  const {
+    sketchImageDataUrl,
+    brushSize,
+    brushColor,
+    brushOpacity,
+    isEraser,
+    isPanMode,
+    scale,
+    offsetX,
+    offsetY,
+    onPan,
+    onHistoryUpdate,
+    triggerUndo,
+    triggerRedo,
+    onUndoRedoComplete,
+    undoHistory,
+    historyStep,
+    loadedPaintLayer,
+  } = props;
+
   const backgroundCanvasRef = useRef<HTMLCanvasElement>(null);
   const drawingCanvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -53,6 +62,14 @@ export default function PaintCanvas({
   const [lastPoint, setLastPoint] = useState<Point | null>(null);
   const [isPanning, setIsPanning] = useState(false);
   const [lastPanPoint, setLastPanPoint] = useState<Point | null>(null);
+
+  // Expose methods to parent component
+  useImperativeHandle(ref, () => ({
+    getCurrentImageData: () => {
+      if (!drawingCanvasRef.current) return null;
+      return getCanvasImageData(drawingCanvasRef.current);
+    },
+  }));
 
   useEffect(() => {
     const setupCanvases = async () => {
@@ -75,9 +92,9 @@ export default function PaintCanvas({
           drawingCanvas.width = backgroundCanvas.width;
           drawingCanvas.height = backgroundCanvas.height;
 
-          // Initialize the drawing canvas
+          // Initialize the drawing canvas (only if no paint layer is being loaded)
           const ctx = drawingCanvas.getContext("2d");
-          if (ctx && undoHistory.length === 0) {
+          if (ctx && undoHistory.length === 0 && !loadedPaintLayer) {
             ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
             const imageData = ctx.getImageData(
               0,
@@ -87,6 +104,18 @@ export default function PaintCanvas({
             );
             onHistoryUpdate(imageData);
           }
+
+          // Load paint layer after canvas is set up
+          if (loadedPaintLayer && ctx) {
+            try {
+              const imageData = await base64ToImageData(loadedPaintLayer);
+              ctx.putImageData(imageData, 0, 0);
+              // Add to history
+              onHistoryUpdate(imageData);
+            } catch (error) {
+              console.error("Failed to restore paint layer:", error);
+            }
+          }
         } catch (error) {
           console.error("Failed to load image to canvas:", error);
         }
@@ -94,7 +123,7 @@ export default function PaintCanvas({
     };
 
     setupCanvases();
-  }, [sketchImageDataUrl]);
+  }, [sketchImageDataUrl, loadedPaintLayer]);
 
   useEffect(() => {
     if (triggerUndo > 0 && drawingCanvasRef.current) {
@@ -328,4 +357,6 @@ export default function PaintCanvas({
       </div>
     </div>
   );
-}
+});
+
+export default PaintCanvas;
