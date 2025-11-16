@@ -1,4 +1,4 @@
-import { Undo2, Redo2, RotateCcw } from "lucide-react";
+import { Undo2, Redo2, RotateCcw, Download } from "lucide-react";
 import SaveProgressControls from "./SaveProgressControls";
 
 interface HistoryControlsProps {
@@ -9,6 +9,7 @@ interface HistoryControlsProps {
   onClear: () => void;
   onSave: () => Promise<void>;
   onLoad: (file: File) => Promise<void>;
+  onExport: () => Promise<void>;
   canSave: boolean;
 }
 
@@ -20,6 +21,7 @@ export default function HistoryControls({
   onClear,
   onSave,
   onLoad,
+  onExport,
   canSave,
 }: HistoryControlsProps) {
   return (
@@ -53,6 +55,18 @@ export default function HistoryControls({
           className="flex items-center justify-center gap-2 px-3 py-2 text-white transition-colors bg-red-600 rounded-lg hover:bg-red-700"
         >
           <RotateCcw size={16} />
+        </button>
+        <button
+          onClick={onExport}
+          disabled={!canSave}
+          className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+            canSave
+              ? "bg-green-600 text-white hover:bg-green-700"
+              : "bg-gray-200 text-gray-400 cursor-not-allowed"
+          }`}
+          title="Export as Image"
+        >
+          <Download size={16} />
         </button>{" "}
         {/* Save/Load Controls */}
         <SaveProgressControls

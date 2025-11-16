@@ -2,6 +2,7 @@ import { useState, useCallback, useRef } from "react";
 import { Palette } from "lucide-react";
 import ImageUploader from "./components/ImageUploader";
 import { saveProject, loadProject } from "./utils/projectSave";
+import { exportCanvasAsImage } from "./utils/exportCanvas";
 import PaintCanvas from "./components/PaintCanvas";
 import ColorPalette from "./components/ColorPalette";
 import BrushControls from "./components/BrushControls";
@@ -192,6 +193,35 @@ function App() {
     }
   };
 
+  const handleExportImage = async (): Promise<void> => {
+    try {
+      const currentImageData = paintCanvasRef.current?.getCurrentImageData();
+
+      if (!currentImageData || !sketchImageDataUrl) {
+        alert("No canvas data to export. Please upload an image and start painting first.");
+        return;
+      }
+
+      // Ask user if they want to include the original colored/posterized image
+      const includeOriginal = window.confirm(
+        "Do you want to include the original colored image in the export?\n\n" +
+        "Click OK to export with the original colored/posterized image as background.\n" +
+        "Click Cancel to export with only the grayscale sketch outline and your painting."
+      );
+
+      await exportCanvasAsImage(sketchImageDataUrl, currentImageData, {
+        includeOriginal,
+        originalImageDataUrl: imageDataUrl || undefined,
+        filename: 'my-painting.png'
+      });
+      
+      alert("Image exported successfully!");
+    } catch (error) {
+      console.error("Export error:", error);
+      alert("An error occurred while exporting the image.");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <header className="bg-white border-b border-gray-200 shadow-sm">
@@ -254,6 +284,7 @@ function App() {
               onClear={handleClear}
               onSave={handleSaveProgress}
               onLoad={handleLoadProgress}
+              onExport={handleExportImage}
               canSave={!!imageDataUrl && !!sketchImageDataUrl}
             />
           </div>
