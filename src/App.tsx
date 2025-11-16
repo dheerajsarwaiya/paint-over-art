@@ -6,6 +6,7 @@ import ColorPalette from "./components/ColorPalette";
 import BrushControls from "./components/BrushControls";
 import CanvasControls from "./components/CanvasControls";
 import HistoryControls from "./components/HistoryControls";
+import ColorHighlightOverlay from "./components/ColorHighlightOverlay";
 
 function App() {
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
@@ -27,6 +28,7 @@ function App() {
   const [historyStep, setHistoryStep] = useState(-1);
   const [triggerUndo, setTriggerUndo] = useState(0);
   const [triggerRedo, setTriggerRedo] = useState(0);
+  const [isColorHighlightEnabled, setIsColorHighlightEnabled] = useState(false);
 
   const handleImageUpload = (
     dataUrl: string,
@@ -41,6 +43,7 @@ function App() {
     setOffsetY(0);
     setHistory([]);
     setHistoryStep(-1);
+    setIsColorHighlightEnabled(false);
   };
 
   const handleZoomIn = () => {
@@ -164,13 +167,14 @@ function App() {
                 {/* <h3 className="mb-2 text-sm font-medium text-gray-700">
                   Original Image
                 </h3> */}
-                <div className="w-full overflow-hidden bg-gray-100 rounded-lg aspect-square">
-                  <img
-                    src={imageDataUrl}
-                    alt="Original uploaded image"
-                    className="object-contain w-full h-full"
-                  />
-                </div>
+                <ColorHighlightOverlay
+                  imageDataUrl={imageDataUrl}
+                  brushColor={brushColor}
+                  isEnabled={isColorHighlightEnabled}
+                  onToggle={() =>
+                    setIsColorHighlightEnabled(!isColorHighlightEnabled)
+                  }
+                />
               </div>
             )}
             <ColorPalette
