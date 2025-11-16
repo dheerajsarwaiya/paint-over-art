@@ -37,7 +37,6 @@ export default function HistoryControls({
         >
           <Undo2 size={16} />
         </button>
-
         <button
           onClick={onRedo}
           disabled={!canRedo}
@@ -49,22 +48,20 @@ export default function HistoryControls({
         >
           <Redo2 size={16} />
         </button>
-
         <button
           onClick={onClear}
           className="flex items-center justify-center gap-2 px-3 py-2 text-white transition-colors bg-red-600 rounded-lg hover:bg-red-700"
         >
           <RotateCcw size={16} />
-        </button>
+        </button>{" "}
+        {/* Save/Load Controls */}
+        <SaveProgressControls
+          onSave={onSave}
+          onLoad={onLoad}
+          disableSave={!canSave}
+          disableLoad={false}
+        />
       </div>
-
-      {/* Save/Load Controls */}
-      <SaveProgressControls
-        onSave={onSave}
-        onLoad={onLoad}
-        disableSave={!canSave}
-        disableLoad={false}
-      />
     </div>
   );
 }
