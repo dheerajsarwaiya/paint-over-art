@@ -13,11 +13,13 @@ function WhyAndHow() {
               </div>
               <div>
                 <h1 className="flex gap-2 text-2xl font-bold text-amber-500">
-                  Paint By{" "}
-                  <span className="text-[#39FF14] [-webkit-text-stroke:1px_#374151] [text-stroke:1px_#374151]">
-                    {" "}
-                    Neon
-                  </span>
+                  <Link to="/" className="hover:underline">
+                    Paint By{" "}
+                    <span className="text-[#39FF14] [-webkit-text-stroke:1px_#374151] [text-stroke:1px_#374151]">
+                      {" "}
+                      Neon
+                    </span>
+                  </Link>
                 </h1>
                 <p className="text-sm text-gray-600">Why and How?</p>
               </div>
@@ -41,6 +43,11 @@ function WhyAndHow() {
               <span className="text-lime-600">Why</span> Paint By Neon?
             </h2>
             <div className="space-y-4 leading-relaxed text-gray-700">
+              <img
+                src="/public/images/koby.png"
+                alt="Why Paint By Neon"
+                className="w-full h-auto rounded-lg shadow-md md:w-1/2"
+              />
               <p>
                 Art is more than just a pretty picture; it's a powerful stress
                 buster, a conduit for emotion, and a window to different
