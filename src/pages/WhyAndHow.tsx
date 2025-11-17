@@ -44,7 +44,7 @@ function WhyAndHow() {
             </h2>
             <div className="space-y-4 leading-relaxed text-gray-700">
               <img
-                src="/public/images/koby.png"
+                src="/images/koby.png"
                 alt="Why Paint By Neon"
                 className="w-full h-auto rounded-lg shadow-md md:w-1/2"
               />
