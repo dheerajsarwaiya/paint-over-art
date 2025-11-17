@@ -134,14 +134,29 @@ function WhyAndHow() {
                     your painting.
                   </p>
                 </div>
+                <div className="p-5 border border-pink-200 rounded-lg bg-pink-50">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="flex items-center justify-center w-8 h-8 font-bold text-white bg-pink-500 rounded-full">
+                      3
+                    </span>
+                    <h3 className="text-lg font-semibold">
+                      Painting in the real world
+                    </h3>
+                  </div>
+                  <p className="text-sm">
+                    Print out the generated outline and color palette. Use
+                    traditional paints to bring your artwork to life on paper or
+                    canvas.
+                  </p>
+                </div>
 
                 <div className="p-5 border border-green-200 rounded-lg bg-green-50">
                   <div className="flex items-center gap-2 mb-3">
                     <span className="flex items-center justify-center w-8 h-8 font-bold text-white bg-green-500 rounded-full">
-                      3
+                      4
                     </span>
                     <h3 className="text-lg font-semibold">
-                      Start Painting with Neon
+                      Painting with Neon
                     </h3>
                   </div>
                   <p className="text-sm">
@@ -151,11 +166,25 @@ function WhyAndHow() {
                     Neon hue, giving you the ultimate visual cheat sheet!
                   </p>
                 </div>
+                <div className="p-5 border rounded-lg border-neon-200 bg-yellow-50">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="flex items-center justify-center w-8 h-8 font-bold text-white bg-yellow-500 rounded-full">
+                      5
+                    </span>
+                    <h3 className="text-lg font-semibold">
+                      Color Mixer in Real World
+                    </h3>
+                  </div>
+                  <p className="text-sm">
+                    Use the color mixer feature to create colors for the
+                    painting using the primary colors.
+                  </p>
+                </div>
 
                 <div className="p-5 border border-orange-200 rounded-lg bg-orange-50">
                   <div className="flex items-center gap-2 mb-3">
                     <span className="flex items-center justify-center w-8 h-8 font-bold text-white bg-orange-500 rounded-full">
-                      4
+                      6
                     </span>
                     <h3 className="text-lg font-semibold">Save & Export</h3>
                   </div>
@@ -166,7 +195,7 @@ function WhyAndHow() {
                 </div>
               </div>
 
-              <div className="p-6 mt-6 border rounded-lg bg-gradient-to-r from-amber-50 to-lime-50 border-amber-200">
+              <div className="p-6 mt-6 border border-gray-200 rounded-lg bg-gradient-to-r from-amber-50 to-lime-50">
                 <h3 className="mb-3 text-lg font-semibold text-gray-800">
                   Pro Tips:
                 </h3>
