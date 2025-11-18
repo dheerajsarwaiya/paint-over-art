@@ -73,6 +73,10 @@ const PaintCanvas = forwardRef<PaintCanvasRef, PaintCanvasProps>((props, ref) =>
     },
   }));
 
+  // Track if we've already loaded a paint layer to avoid re-initializing
+  const hasLoadedPaintLayerRef = useRef(false);
+  const lastSketchUrlRef = useRef<string | null>(null);
+
   useEffect(() => {
     const setupCanvases = async () => {
       if (
@@ -81,6 +85,14 @@ const PaintCanvas = forwardRef<PaintCanvasRef, PaintCanvasProps>((props, ref) =>
         drawingCanvasRef.current
       ) {
         try {
+          // Check if this is a new sketch image (new upload vs. loaded project)
+          const isNewSketchImage = lastSketchUrlRef.current !== sketchImageDataUrl;
+          if (isNewSketchImage && !loadedPaintLayer) {
+            // Only reset if it's a new sketch without a paint layer to load
+            hasLoadedPaintLayerRef.current = false;
+          }
+          lastSketchUrlRef.current = sketchImageDataUrl;
+
           // Wait for the background image to load and set canvas dimensions
           await loadImageToCanvas(
             sketchImageDataUrl,
@@ -94,9 +106,25 @@ const PaintCanvas = forwardRef<PaintCanvasRef, PaintCanvasProps>((props, ref) =>
           drawingCanvas.width = backgroundCanvas.width;
           drawingCanvas.height = backgroundCanvas.height;
 
-          // Initialize the drawing canvas (only if no paint layer is being loaded)
           const ctx = drawingCanvas.getContext("2d");
-          if (ctx && undoHistory.length === 0 && !loadedPaintLayer) {
+          if (!ctx) return;
+
+          // Load paint layer after canvas is set up
+          if (loadedPaintLayer && !hasLoadedPaintLayerRef.current) {
+            console.log("Loading paint layer from saved file...");
+            try {
+              const imageData = await base64ToImageData(loadedPaintLayer);
+              ctx.putImageData(imageData, 0, 0);
+              // Add to history
+              onHistoryUpdate(imageData);
+              hasLoadedPaintLayerRef.current = true;
+              console.log("Paint layer loaded successfully!");
+            } catch (error) {
+              console.error("Failed to restore paint layer:", error);
+            }
+          } else if (!loadedPaintLayer && undoHistory.length === 0 && !hasLoadedPaintLayerRef.current) {
+            // Initialize the drawing canvas only if we haven't loaded a paint layer
+            console.log("Initializing empty canvas...");
             ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
             const imageData = ctx.getImageData(
               0,
@@ -105,18 +133,7 @@ const PaintCanvas = forwardRef<PaintCanvasRef, PaintCanvasProps>((props, ref) =>
               drawingCanvas.height
             );
             onHistoryUpdate(imageData);
-          }
-
-          // Load paint layer after canvas is set up
-          if (loadedPaintLayer && ctx) {
-            try {
-              const imageData = await base64ToImageData(loadedPaintLayer);
-              ctx.putImageData(imageData, 0, 0);
-              // Add to history
-              onHistoryUpdate(imageData);
-            } catch (error) {
-              console.error("Failed to restore paint layer:", error);
-            }
+            hasLoadedPaintLayerRef.current = true;
           }
         } catch (error) {
           console.error("Failed to load image to canvas:", error);

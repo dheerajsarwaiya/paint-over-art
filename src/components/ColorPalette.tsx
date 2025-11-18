@@ -58,7 +58,7 @@ export default function ColorPalette({
       <p className="mb-2 text-xs font-medium text-gray-600">
         More Colors ({PALETTE_COLORS.length} available)
       </p>
-      <div className="grid grid-cols-11 gap-1 max-h-[400px] overflow-y-auto pr-1">
+      {/* <div className="grid grid-cols-11 gap-1 max-h-[400px] overflow-y-auto pr-1">
         {PALETTE_COLORS.map((color) => (
           <button
             key={color.value}
@@ -73,7 +73,7 @@ export default function ColorPalette({
             aria-label={color.name}
           />
         ))}
-      </div>
+      </div> */}
 
       {/* Color Mixer Modal */}
       {showColorMixer && (

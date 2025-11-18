@@ -96,7 +96,7 @@ export default function SaveProgressControls({
         )}
         <input
           type="file"
-          accept=".paintoverart"
+          accept=".paintbyneon,.paintoverart"
           onChange={handleFileChange}
           disabled={disableLoad || isLoading}
           className="hidden"

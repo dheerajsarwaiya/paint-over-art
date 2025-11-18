@@ -2,7 +2,7 @@ import { PaintOverArtSave, SaveResult, LoadResult } from "../types/projectSave";
 import { imageDataToBase64, base64ToImageData } from "./canvasSerializer";
 
 const CURRENT_VERSION = "1.0.0";
-const FILE_EXTENSION = ".paintoverart";
+const FILE_EXTENSION = ".paintbyneon";
 
 /**
  * Generate a filename for the save file
