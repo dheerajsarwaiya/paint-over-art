@@ -409,8 +409,7 @@ function Home() {
               <div className="order-1 space-y-4 lg:order-2 lg:col-span-3">
                 {/* Canvas area */}
                 <div
-                  className="p-3 bg-white rounded-lg shadow-lg sm:p-6"
-                  style={{ height: "calc(100vh - 260px)", minHeight: "400px" }}
+                  className="p-3 bg-white rounded-lg shadow-lg sm:p-6 aspect-square"
                 >
                   <PaintCanvas
                     ref={paintCanvasRef}
@@ -450,6 +449,9 @@ function Home() {
                       onToggle={() =>
                         setIsColorHighlightEnabled(!isColorHighlightEnabled)
                       }
+                      scale={scale}
+                      offsetX={offsetX}
+                      offsetY={offsetY}
                     />
                   </div>
                 )}

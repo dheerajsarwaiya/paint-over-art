@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { createColorHighlightImage } from "../utils/colorHighlight";
 
@@ -7,6 +7,9 @@ interface ColorHighlightOverlayProps {
   brushColor: string;
   isEnabled: boolean;
   onToggle: () => void;
+  scale: number;
+  offsetX: number;
+  offsetY: number;
 }
 
 const ColorHighlightOverlay: React.FC<ColorHighlightOverlayProps> = ({
@@ -14,11 +17,16 @@ const ColorHighlightOverlay: React.FC<ColorHighlightOverlayProps> = ({
   brushColor,
   isEnabled,
   onToggle,
+  scale,
+  offsetX,
+  offsetY,
 }) => {
   const [highlightedImageUrl, setHighlightedImageUrl] = useState<string | null>(
     null
   );
   const [isProcessing, setIsProcessing] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [sizeRatio, setSizeRatio] = useState<number>(1);
 
   const generateHighlight = useCallback(async () => {
     if (!imageDataUrl || !brushColor) return;
@@ -55,6 +63,28 @@ const ColorHighlightOverlay: React.FC<ColorHighlightOverlayProps> = ({
     }
   }, [brushColor, imageDataUrl, isEnabled, generateHighlight]);
 
+  // Calculate size ratio between sidebar and main canvas
+  // Main canvas is in lg:col-span-3, sidebar is in lg:col-span-1
+  // So the ratio is approximately 1:3, but we'll measure actual widths
+  useEffect(() => {
+    const updateSizeRatio = () => {
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.offsetWidth;
+        // The main canvas takes ~75% of the row (3/4 columns)
+        // The sidebar takes ~25% (1/4 column)
+        // So sidebar is about 1/3 the size of the canvas
+        // We calculate the ratio as sidebar_width / canvas_width
+        // Approximate canvas width is containerWidth * 3
+        const estimatedCanvasWidth = containerWidth * 3;
+        setSizeRatio(containerWidth / estimatedCanvasWidth);
+      }
+    };
+
+    updateSizeRatio();
+    window.addEventListener('resize', updateSizeRatio);
+    return () => window.removeEventListener('resize', updateSizeRatio);
+  }, []);
+
   return (
     <div className="relative">
       {/* Toggle Button */}
@@ -69,7 +99,7 @@ const ColorHighlightOverlay: React.FC<ColorHighlightOverlayProps> = ({
       >
         {isProcessing ? (
           <>
-            <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
+            <div className="w-4 h-4 border-2 border-gray-300 rounded-full border-t-blue-600 animate-spin" />
             Processing...
           </>
         ) : (
@@ -81,25 +111,38 @@ const ColorHighlightOverlay: React.FC<ColorHighlightOverlayProps> = ({
       </button>
 
       {/* Image Display */}
-      <div className="w-full overflow-hidden bg-gray-100 rounded-lg aspect-square relative">
-        {/* Show highlighted image when enabled, otherwise show original */}
-        <img
-          src={
-            isEnabled && highlightedImageUrl
-              ? highlightedImageUrl
-              : imageDataUrl
-          }
-          alt={
-            isEnabled
-              ? "Image with color highlights"
-              : "Original uploaded image"
-          }
-          className="object-contain w-full h-full"
-        />
+      <div ref={containerRef} className="relative w-full overflow-hidden bg-gray-100 rounded-lg aspect-square">
+        {/* Transformed image container to match main canvas viewport */}
+        <div
+          style={{
+            transform: `scale(${scale}) translate(${(offsetX * sizeRatio) / scale}px, ${
+              (offsetY * sizeRatio) / scale
+            }px)`,
+            transformOrigin: "0 0",
+            position: "relative",
+            width: "100%",
+            height: "100%",
+          }}
+        >
+          {/* Show highlighted image when enabled, otherwise show original */}
+          <img
+            src={
+              isEnabled && highlightedImageUrl
+                ? highlightedImageUrl
+                : imageDataUrl
+            }
+            alt={
+              isEnabled
+                ? "Image with color highlights"
+                : "Original uploaded image"
+            }
+            className="object-contain w-full h-full"
+          />
+        </div>
 
         {/* Status indicator */}
         {isEnabled && (
-          <div className="absolute top-2 left-2">
+          <div className="absolute z-10 top-2 left-2">
             <div className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-white bg-green-600 rounded">
               <Eye size={12} />
               Highlighting: {brushColor}
