@@ -281,8 +281,8 @@ function Home() {
                 <Palette className="text-[#39FF14]" size={40} />
               </div> */}
               <p className="mt-6 mb-6 text-lg font-bold leading-relaxed text-gray-600">
-                Transform any image into a paint-by-numbers masterpiece and
-                bring it to life with your creativity.
+                Transform any image into a masterpiece and bring it to life with
+                your creativity.
               </p>
               <div className="p-6 mb-6 text-left bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl">
                 <h3 className="mb-3 text-xl font-semibold text-gray-800">
