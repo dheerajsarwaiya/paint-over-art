@@ -265,13 +265,22 @@ function Home() {
         {!imageDataUrl && !sketchImageDataUrl && (
           <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
             <div className="max-w-2xl p-8 text-center bg-white shadow-lg rounded-2xl">
-              <div className="inline-flex items-center justify-center w-20 h-20 mb-6 rounded-full bg-gradient-to-br from-amber-100 to-amber-200">
-                <Palette className="text-amber-600" size={40} />
-              </div>
-              <h2 className="mb-4 text-3xl font-bold text-gray-800">
-                Welcome to Paint By Neon!
+              <h2 className="mb-4 text-3xl font-bold text-gray-500">
+                Welcome to <span className="text-amber-500">Paint By</span>
+                <span className="text-[#39FF14] [-webkit-text-stroke:1px_#374151] [text-stroke:1px_#374151]">
+                  {" "}
+                  Neon
+                </span>
               </h2>
-              <p className="mb-6 text-lg leading-relaxed text-gray-600">
+              <img
+                src="/images/home.webp"
+                alt="Paint By Neon"
+                className="w-full mx-auto mb-4"
+              />
+              {/* <div className="inline-flex items-center justify-center w-20 h-20 mb-6 rounded-2xl bg-gradient-to-br from-slate-100 to-slate-600">
+                <Palette className="text-[#39FF14]" size={40} />
+              </div> */}
+              <p className="mt-6 mb-6 text-lg font-bold leading-relaxed text-gray-600">
                 Transform any image into a paint-by-numbers masterpiece and
                 bring it to life with your creativity.
               </p>
@@ -307,9 +316,9 @@ function Home() {
                       3
                     </span>
                     <span className="pt-0.5">
-                      <strong>Paint offline</strong> - If you prefer hardcopy, take a printout of the
-                      sketch and use our mixer tool to get the right color for
-                      offline painting.
+                      <strong>Paint offline</strong> - If you prefer hardcopy,
+                      take a printout of the sketch and use our mixer tool to
+                      get the right color for offline painting.
                     </span>
                   </li>
                   <li className="flex items-start gap-3">
