@@ -29,7 +29,7 @@ function Home() {
   const [offsetY, setOffsetY] = useState(0);
   // const [imageLocked, setImageLocked] = useState(false);
   // const [imageOpacity, setImageOpacity] = useState(0.5);
-  
+
   // Layers state management
   const [layers, setLayers] = useState<Layer[]>([
     { id: 0, name: "Layer 0", visible: true, isSketch: true },
@@ -38,7 +38,7 @@ function Home() {
     { id: 3, name: "Layer 3", visible: true },
   ]);
   const [activeLayerId, setActiveLayerId] = useState(1);
-  
+
   // Global undo/redo history across all layers
   interface HistorySnapshot {
     layers: Record<number, ImageData>;
@@ -47,8 +47,10 @@ function Home() {
   const [globalHistoryStep, setGlobalHistoryStep] = useState(-1);
   const [triggerUndo, setTriggerUndo] = useState(0);
   const [triggerRedo, setTriggerRedo] = useState(0);
-  const [isColorHighlightEnabled, setIsColorHighlightEnabled] = useState(false);
-  const [loadedPaintLayers, setLoadedPaintLayers] = useState<Record<number, string | null>>({});
+  const [isColorHighlightEnabled, setIsColorHighlightEnabled] = useState(true);
+  const [loadedPaintLayers, setLoadedPaintLayers] = useState<
+    Record<number, string | null>
+  >({});
   const paintCanvasRef = useRef<PaintCanvasRef>(null);
 
   const handleImageUpload = (
@@ -98,8 +100,9 @@ function Home() {
   const handleHistoryUpdate = useCallback(
     (imageData: ImageData, layerId: number) => {
       // Get all current layer states
-      const allLayersData = paintCanvasRef.current?.getAllLayersImageData() || {};
-      
+      const allLayersData =
+        paintCanvasRef.current?.getAllLayersImageData() || {};
+
       // Filter out null values and create clean layers object
       const cleanLayers: Record<number, ImageData> = {};
       for (const [id, data] of Object.entries(allLayersData)) {
@@ -107,18 +110,18 @@ function Home() {
           cleanLayers[parseInt(id)] = data;
         }
       }
-      
+
       // Update the changed layer
       cleanLayers[layerId] = imageData;
-      
+
       const snapshot: HistorySnapshot = {
         layers: cleanLayers,
       };
-      
+
       // Add to global history, removing any future states if we're in the middle of undo stack
       const newHistory = globalHistory.slice(0, globalHistoryStep + 1);
       newHistory.push(snapshot);
-      
+
       setGlobalHistory(newHistory);
       setGlobalHistoryStep(newHistory.length - 1);
     },
@@ -140,7 +143,11 @@ function Home() {
   };
 
   const handleClear = () => {
-    if (window.confirm(`Are you sure you want to clear all painting on Layer ${activeLayerId}?`)) {
+    if (
+      window.confirm(
+        `Are you sure you want to clear all painting on Layer ${activeLayerId}?`
+      )
+    ) {
       // Clear only affects the current active layer
       // We'll trigger the canvas to clear and add to history
       const canvasRef = paintCanvasRef.current;
@@ -148,7 +155,10 @@ function Home() {
         const layerImageData = canvasRef.getLayerImageData(activeLayerId);
         if (layerImageData) {
           // Create a blank image data
-          const blankImageData = new ImageData(layerImageData.width, layerImageData.height);
+          const blankImageData = new ImageData(
+            layerImageData.width,
+            layerImageData.height
+          );
           handleHistoryUpdate(blankImageData, activeLayerId);
           setTriggerUndo((prev) => prev + 1); // Trigger a refresh
         }
@@ -182,8 +192,9 @@ function Home() {
       }
 
       // Get all layers image data
-      const allLayersImageData = paintCanvasRef.current?.getAllLayersImageData();
-      
+      const allLayersImageData =
+        paintCanvasRef.current?.getAllLayersImageData();
+
       if (!allLayersImageData) {
         alert("No canvas data to save.");
         return;
@@ -207,7 +218,10 @@ function Home() {
         },
         {
           activeLayerId,
-          layersVisibility: layers.reduce((acc, layer) => ({ ...acc, [layer.id]: layer.visible }), {}),
+          layersVisibility: layers.reduce(
+            (acc, layer) => ({ ...acc, [layer.id]: layer.visible }),
+            {}
+          ),
         }
       );
 
@@ -263,11 +277,13 @@ function Home() {
             visible: data.layers!.layersVisibility[layer.id] ?? layer.visible,
           }))
         );
-        
+
         // Load all paint layers
         if (data.canvas.paintLayers) {
           const loadedLayers: Record<number, string | null> = {};
-          for (const [layerIdStr, layerData] of Object.entries(data.canvas.paintLayers)) {
+          for (const [layerIdStr, layerData] of Object.entries(
+            data.canvas.paintLayers
+          )) {
             loadedLayers[parseInt(layerIdStr)] = layerData;
           }
           setLoadedPaintLayers(loadedLayers);
@@ -288,7 +304,8 @@ function Home() {
   const handleExportImage = async (): Promise<void> => {
     try {
       // Get all layers image data
-      const allLayersImageData = paintCanvasRef.current?.getAllLayersImageData();
+      const allLayersImageData =
+        paintCanvasRef.current?.getAllLayersImageData();
 
       if (!allLayersImageData || !sketchImageDataUrl) {
         alert(
@@ -305,15 +322,23 @@ function Home() {
       );
 
       // Get layers visibility
-      const layersVisibility = layers.reduce((acc, layer) => ({ ...acc, [layer.id]: layer.visible }), {});
-      const sketchVisible = layers.find(l => l.id === 0)?.visible ?? true;
+      const layersVisibility = layers.reduce(
+        (acc, layer) => ({ ...acc, [layer.id]: layer.visible }),
+        {}
+      );
+      const sketchVisible = layers.find((l) => l.id === 0)?.visible ?? true;
 
-      await exportCanvasAsImage(sketchImageDataUrl, allLayersImageData, layersVisibility, {
-        includeOriginal,
-        originalImageDataUrl: imageDataUrl || undefined,
-        filename: "my-painting.png",
-        sketchVisible,
-      });
+      await exportCanvasAsImage(
+        sketchImageDataUrl,
+        allLayersImageData,
+        layersVisibility,
+        {
+          includeOriginal,
+          originalImageDataUrl: imageDataUrl || undefined,
+          filename: "my-painting.png",
+          sketchVisible,
+        }
+      );
 
       alert("Image exported successfully!");
     } catch (error) {
@@ -519,7 +544,7 @@ function Home() {
                       onLayerVisibilityToggle={handleLayerVisibilityToggle}
                     />
                   </div>
-                  
+
                   <PaintCanvas
                     ref={paintCanvasRef}
                     sketchImageDataUrl={sketchImageDataUrl}
@@ -540,8 +565,13 @@ function Home() {
                     globalHistoryStep={globalHistoryStep}
                     loadedPaintLayers={loadedPaintLayers}
                     activeLayerId={activeLayerId}
-                    layersVisibility={layers.reduce((acc, layer) => ({ ...acc, [layer.id]: layer.visible }), {})}
-                    sketchVisible={layers.find(l => l.id === 0)?.visible ?? true}
+                    layersVisibility={layers.reduce(
+                      (acc, layer) => ({ ...acc, [layer.id]: layer.visible }),
+                      {}
+                    )}
+                    sketchVisible={
+                      layers.find((l) => l.id === 0)?.visible ?? true
+                    }
                   />
                 </div>
               </div>
